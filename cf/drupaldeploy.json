@@ -21,73 +21,91 @@
         "MapPublicIpOnLaunch": "True"
       }
     },
-    "IGW" : {
-      "Type" : "AWS::EC2::InternetGateway",
-      "Properties" : {}
+    "IGW": {
+      "Type": "AWS::EC2::InternetGateway",
+      "Properties": {}
     },
-    "IgwAttachment" : {
-      "Type" : "AWS::EC2::VPCGatewayAttachment",
-      "Properties" : {
-        "VpcId" : { "Ref" : "DrupalVPC" },
-        "InternetGatewayId" : { "Ref" : "IGW" }
+    "IgwAttachment": {
+      "Type": "AWS::EC2::VPCGatewayAttachment",
+      "Properties": {
+        "VpcId": {
+          "Ref": "DrupalVPC"
+        },
+        "InternetGatewayId": {
+          "Ref": "IGW"
+        }
       }
     },
-    "PublicRouteTable" : {
-      "Type" : "AWS::EC2::RouteTable",
-      "Properties" : {
-        "VpcId" : { "Ref" : "DrupalVPC" }
+    "PublicRouteTable": {
+      "Type": "AWS::EC2::RouteTable",
+      "Properties": {
+        "VpcId": {
+          "Ref": "DrupalVPC"
+        }
       }
     },
-    "PublicRoute" : {
-      "Type" : "AWS::EC2::Route",
-      "DependsOn" : "IGW",
-      "Properties" : {
-        "RouteTableId" : { "Ref" : "PublicRouteTable" },
-        "DestinationCidrBlock" : "0.0.0.0/0",
-        "GatewayId" : { "Ref" : "IGW" }
+    "PublicRoute": {
+      "Type": "AWS::EC2::Route",
+      "DependsOn": "IGW",
+      "Properties": {
+        "RouteTableId": {
+          "Ref": "PublicRouteTable"
+        },
+        "DestinationCidrBlock": "0.0.0.0/0",
+        "GatewayId": {
+          "Ref": "IGW"
+        }
       }
     },
     "PublicSubnetRouteAssociation": {
-      "Type" : "AWS::EC2::SubnetRouteTableAssociation",
-      "Properties" : {
-        "RouteTableId" : { "Ref" : "PublicRouteTable" },
-        "SubnetId" : { "Ref" : "PublicSubnet" }
+      "Type": "AWS::EC2::SubnetRouteTableAssociation",
+      "Properties": {
+        "RouteTableId": {
+          "Ref": "PublicRouteTable"
+        },
+        "SubnetId": {
+          "Ref": "PublicSubnet"
+        }
       }
     },
-    "DrupaleSecurityGroup" : {
-      "Type" : "AWS::EC2::SecurityGroup",
-      "Properties" : {
-        "GroupDescription" : "Allow HTTP and SSH traffic to our host",
-        "VpcId" : {"Ref" : "DrupalVPC"},
-        "SecurityGroupIngress" : [
+    "DrupaleSecurityGroup": {
+      "Type": "AWS::EC2::SecurityGroup",
+      "Properties": {
+        "GroupDescription": "Allow HTTP and SSH traffic to our host",
+        "VpcId": {
+          "Ref": "DrupalVPC"
+        },
+        "SecurityGroupIngress": [
           {
-            "IpProtocol" : "tcp",
-            "FromPort" : "22",
-            "ToPort" : "22",
-            "CidrIp" : "0.0.0.0/0"
+            "IpProtocol": "tcp",
+            "FromPort": "22",
+            "ToPort": "22",
+            "CidrIp": "0.0.0.0/0"
           },
           {
-            "IpProtocol" : "tcp",
-            "FromPort" : "80",
-            "ToPort" : "80",
-            "CidrIp" : "0.0.0.0/0"
+            "IpProtocol": "tcp",
+            "FromPort": "80",
+            "ToPort": "80",
+            "CidrIp": "0.0.0.0/0"
           }
         ],
-        "SecurityGroupEgress" : [
+        "SecurityGroupEgress": [
           {
-            "IpProtocol" : "tcp",
-            "FromPort" : "1",
-            "ToPort" : "65535",
-            "CidrIp" : "0.0.0.0/0"
+            "IpProtocol": "tcp",
+            "FromPort": "1",
+            "ToPort": "65535",
+            "CidrIp": "0.0.0.0/0"
           }
         ]
       }
     },
-    "DrupalInstance" : {
-      "Type" : "AWS::EC2::Instance",
-      "Properties" : {
-        "ImageId" : "ami-97785bed",
-        "KeyName" : { "Ref": "drupaljwkp"},
+    "DrupalInstance": {
+      "Type": "AWS::EC2::Instance",
+      "Properties": {
+        "ImageId": "ami-97785bed",
+        "KeyName": {
+          "Ref": "drupaljwkp"
+        },
         "SubnetId": {
           "Ref": "PublicSubnet"
         },
@@ -123,8 +141,21 @@
         "Fn::GetAtt": [
           "DrupalInstance",
           "PublicIp"
-        ]
+        ],
+        "UserData": {
+          "Fn::Base64": {
+            "Fn::Join": [
+              "",
+              [
+                "#!/bin/bash -v\n",
+                "#sudo apt-get update && sudo apt-get install build-essential ansible  && git clone  https://github.com/jw34/cf_ansible_drupal.git && cd ansible && ansible-playbook -i localhost playbook.yml"
+              ]
+            ]
+          }
+        }
       }
     }
   }
 }
+
+
