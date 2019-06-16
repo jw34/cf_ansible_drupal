@@ -54,7 +54,7 @@
         "SubnetId" : { "Ref" : "PublicSubnet" }
       }
     },
-    "InstanceSecurityGroup" : {
+    "DrupaleSecurityGroup" : {
       "Type" : "AWS::EC2::SecurityGroup",
       "Properties" : {
         "GroupDescription" : "Allow HTTP and SSH traffic to our host",
@@ -83,18 +83,18 @@
         ]
       }
     },
-    "MyEC2Instance" : {
+    "DrupalInstance" : {
       "Type" : "AWS::EC2::Instance",
       "Properties" : {
         "ImageId" : "ami-97785bed",
-        "KeyName" : { "Ref": "SSHKeyName"},
+        "KeyName" : { "Ref": "drupaljwkp"},
         "SubnetId": {
           "Ref": "PublicSubnet"
         },
         "InstanceType": "t2.small",
         "SecurityGroupIds": [
           {
-            "Ref": "InstanceSecurityGroup"
+            "Ref": "DrupaleSecurityGroup"
           }
         ]
       }
@@ -118,10 +118,10 @@
     }
   },
   "Outputs": {
-    "MyEC2InstancePublicIP": {
+    "DrupalInstancePublicIP": {
       "Value": {
         "Fn::GetAtt": [
-          "MyEC2Instance",
+          "DrupalInstance",
           "PublicIp"
         ]
       }
